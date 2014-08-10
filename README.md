@@ -1,6 +1,5 @@
 greenDao Sample
 ============================
-----------------------------
 
 Recently I evaluated an Android [Object Relational Mapping] (ORM) called [greenDAO] which simplifies your Android development by generating your [Data Access Object] (DAO) layer and your [Domain Objects] based on a simple Java schema you define.
 
