@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:scrollbars="none">
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#ffffff"
+        android:shrinkColumns="*"
+        android:stretchColumns="*">
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal">
+
+            <TextView
+                android:id="@+id/details_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_span="3"
+                android:gravity="center"
+                android:padding="28dip"
+                android:text="@string/details_for_user"
+                android:textColor="#000"
+                android:textSize="18sp" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:background="#dcdcdc"
+                android:gravity="center"
+                android:padding="10dip"
+                android:text="Email"
+                android:textColor="#000000" />
+
+            <TextView
+                android:id="@+id/email_label"
+                android:layout_weight="1.5"
+                android:layout_gravity="center_vertical"
+                android:gravity="center"
+                android:padding="10dip"
+                android:textColor="#000000" />
+
+        </TableRow>
+
+        <!-- Row 1 with single column -->
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_span="3"
+                android:background="#b0b0b0"
+                android:textColor="#000"
+                android:textSize="18sp" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:background="#dcdcdc"
+                android:gravity="center"
+                android:padding="10dip"
+                android:text="Last name"
+                android:textColor="#000000" />
+
+            <TextView
+                android:id="@+id/last_name_label"
+                android:layout_weight="1.5"
+                android:layout_gravity="center_vertical"
+                android:gravity="center"
+                android:padding="10dip"
+                android:textColor="#000000" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:background="#dcdcdc"
+                android:gravity="center"
+                android:padding="10dip"
+                android:text="First name"
+                android:textColor="#000000" />
+
+            <TextView
+                android:id="@+id/first_name_label"
+                android:layout_weight="1.5"
+                android:layout_gravity="center_vertical"
+                android:gravity="center"
+                android:padding="10dip"
+                android:textColor="#000000" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:background="#dcdcdc"
+                android:gravity="center"
+                android:padding="10dip"
+                android:text="Nickname"
+                android:textColor="#000000" />
+
+            <TextView
+                android:id="@+id/nickname_label"
+                android:layout_weight="1.5"
+                android:layout_gravity="center_vertical"
+                android:gravity="center"
+                android:padding="10dip"
+                android:textColor="#000000" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:background="#dcdcdc"
+                android:gravity="center"
+                android:padding="10dip"
+                android:text="Birthday"
+                android:textColor="#000000" />
+
+            <TextView
+                android:id="@+id/birthday_label"
+                android:layout_weight="1.5"
+                android:layout_gravity="center_vertical"
+                android:gravity="center"
+                android:padding="10dip"
+                android:textColor="#000000" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:background="#dcdcdc"
+                android:gravity="center"
+                android:padding="10dip"
+                android:text="Gender"
+                android:textColor="#000000" />
+
+            <TextView
+                android:id="@+id/gender_label"
+                android:layout_weight="1.5"
+                android:layout_gravity="center_vertical"
+                android:gravity="center"
+                android:padding="10dip"
+                android:textColor="#000000" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:background="#dcdcdc"
+                android:gravity="center"
+                android:padding="10dip"
+                android:text="Country"
+                android:textColor="#000000" />
+
+            <TextView
+                android:id="@+id/country_label"
+                android:layout_weight="1.5"
+                android:layout_gravity="center_vertical"
+                android:gravity="center"
+                android:padding="10dip"
+                android:textColor="#000000" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:background="#dcdcdc"
+                android:gravity="center"
+                android:padding="10dip"
+                android:text="Phone numbers"
+                android:textColor="#000000" />
+
+            <Spinner
+                android:id="@+id/phone_numbers_spinner"
+                android:layout_weight="1.5"
+                android:layout_gravity="center_vertical"
+                android:gravity="center"
+                android:textColor="#000000" />
+
+        </TableRow>
+
+        <!-- Row 1 with single column -->
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal">
+
+            <Button
+                android:id="@+id/delete_user"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="40dp"
+                android:layout_span="3"
+                android:background="#FF0000"
+                android:padding="18dip"
+                android:text="Delete User"
+                android:textColor="@android:color/white"
+                android:textSize="18sp" />
+
+        </TableRow>
+
+    </TableLayout>
+
+</ScrollView>

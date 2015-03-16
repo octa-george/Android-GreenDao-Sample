@@ -6,8 +6,15 @@ import android.database.sqlite.SQLiteException;
 import android.util.Log;
 
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
+import de.greenrobot.dao.async.AsyncOperation;
+import de.greenrobot.dao.async.AsyncOperationListener;
+import de.greenrobot.dao.async.AsyncSession;
 import de.greenrobot.dao.query.QueryBuilder;
+import de.greenrobot.dao.query.WhereCondition;
+import ro.octa.greendaosample.dao.DBPhoneNumber;
 import ro.octa.greendaosample.dao.DBUser;
 import ro.octa.greendaosample.dao.DBUserDao;
 import ro.octa.greendaosample.dao.DBUserDetails;
@@ -18,7 +25,7 @@ import ro.octa.greendaosample.dao.DaoSession;
 /**
  * @author Octa
  */
-public class DatabaseManager implements IDatabaseManager {
+public class DatabaseManager implements IDatabaseManager, AsyncOperationListener {
 
     /**
      * Class tag. Used for debug.
@@ -36,6 +43,8 @@ public class DatabaseManager implements IDatabaseManager {
     private SQLiteDatabase database;
     private DaoMaster daoMaster;
     private DaoSession daoSession;
+    private AsyncSession asyncSession;
+    private List<AsyncOperation> completedOperations;
 
     /**
      * Constructs a new DatabaseManager with the specified arguments.
@@ -45,6 +54,7 @@ public class DatabaseManager implements IDatabaseManager {
     public DatabaseManager(final Context context) {
         this.context = context;
         mHelper = new DaoMaster.DevOpenHelper(this.context, "sample-database", null);
+        completedOperations = new CopyOnWriteArrayList<AsyncOperation>();
     }
 
     /**
@@ -60,6 +70,16 @@ public class DatabaseManager implements IDatabaseManager {
         return instance;
     }
 
+    @Override
+    public void onAsyncOperationCompleted(AsyncOperation operation) {
+        completedOperations.add(operation);
+    }
+
+    private void assertWaitForCompletion1Sec() {
+        asyncSession.waitForCompletion(1000);
+        asyncSession.isCompleted();
+    }
+
     /**
      * Query for readable DB
      */
@@ -67,6 +87,8 @@ public class DatabaseManager implements IDatabaseManager {
         database = mHelper.getReadableDatabase();
         daoMaster = new DaoMaster(database);
         daoSession = daoMaster.newSession();
+        asyncSession = daoSession.startAsyncSession();
+        asyncSession.setListener(this);
     }
 
     /**
@@ -76,6 +98,8 @@ public class DatabaseManager implements IDatabaseManager {
         database = mHelper.getWritableDatabase();
         daoMaster = new DaoMaster(database);
         daoSession = daoMaster.newSession();
+        asyncSession = daoSession.startAsyncSession();
+        asyncSession.setListener(this);
     }
 
     @Override
@@ -97,20 +121,33 @@ public class DatabaseManager implements IDatabaseManager {
     }
 
     @Override
-    public synchronized void insertUser(DBUser user) {
+    public synchronized void dropDatabase() {
+        try {
+            openWritableDb();
+            DaoMaster.dropAllTables(database, true); // drops all tables
+            mHelper.onCreate(database);              // creates the tables
+            asyncSession.deleteAll(DBUser.class);    // clear all elements from a table
+            asyncSession.deleteAll(DBUserDetails.class);
+            asyncSession.deleteAll(DBPhoneNumber.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public synchronized DBUser insertUser(DBUser user) {
         try {
             if (user != null) {
                 openWritableDb();
                 DBUserDao userDao = daoSession.getDBUserDao();
                 userDao.insert(user);
-
                 Log.d(TAG, "Inserted user: " + user.getEmail() + " to the schema.");
-
                 daoSession.clear();
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return user;
     }
 
     @Override
@@ -133,11 +170,8 @@ public class DatabaseManager implements IDatabaseManager {
         try {
             if (user != null) {
                 openWritableDb();
-                DBUserDao userDao = daoSession.getDBUserDao();
-                userDao.update(user);
-
+                daoSession.update(user);
                 Log.d(TAG, "Updated user: " + user.getEmail() + " from the schema.");
-
                 daoSession.clear();
             }
         } catch (Exception e) {
@@ -163,6 +197,34 @@ public class DatabaseManager implements IDatabaseManager {
     }
 
     @Override
+    public synchronized boolean deleteUserById(Long userId) {
+        try {
+            openWritableDb();
+            DBUserDao userDao = daoSession.getDBUserDao();
+            userDao.deleteByKey(userId);
+            daoSession.clear();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public synchronized DBUser getUserById(Long userId) {
+        DBUser user = null;
+        try {
+            openReadableDb();
+            DBUserDao userDao = daoSession.getDBUserDao();
+            user = userDao.loadDeep(userId);
+            daoSession.clear();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return user;
+    }
+
+    @Override
     public synchronized void deleteUsers() {
         try {
             openWritableDb();
@@ -176,18 +238,54 @@ public class DatabaseManager implements IDatabaseManager {
     }
 
     @Override
-    public synchronized void insertOrUpdateUserDetails(DBUserDetails userDetails) {
+    public synchronized DBUserDetails insertOrUpdateUserDetails(DBUserDetails userDetails) {
         try {
             if (userDetails != null) {
                 openWritableDb();
-                DBUserDetailsDao userDetailsDao = daoSession.getDBUserDetailsDao();
-                if (userDetailsDao.load(userDetails.getId()) == null) {
-                    Log.d(TAG, "Inserted user details to the schema.");
-                    userDetailsDao.insert(userDetails);
-                } else {
-                    Log.d(TAG, "Updated user details from the schema.");
-                    userDetailsDao.update(userDetails);
-                }
+                daoSession.insertOrReplace(userDetails);
+                daoSession.clear();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return userDetails;
+    }
+
+    @Override
+    public synchronized void deleteUserByFirstNameAndGender(String firstName, String gender) {
+        try {
+            openWritableDb();
+            DBUserDetailsDao dao = daoSession.getDBUserDetailsDao();
+            WhereCondition condition = dao.queryBuilder().and(DBUserDetailsDao.Properties.FirstName.eq(firstName),
+                    DBUserDetailsDao.Properties.Gender.eq(gender));
+            QueryBuilder<DBUserDetails> queryBuilder = dao.queryBuilder().where(condition);
+            dao.deleteInTx(queryBuilder.list());
+            daoSession.clear();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public synchronized void insertOrUpdatePhoneNumber(DBPhoneNumber phoneNumber) {
+        try {
+            if (phoneNumber != null) {
+                openWritableDb();
+                daoSession.insertOrReplace(phoneNumber);
+                daoSession.clear();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public synchronized void bulkInsertPhoneNumbers(Set<DBPhoneNumber> phoneNumbers) {
+        try {
+            if (phoneNumbers != null && phoneNumbers.size() > 0) {
+                openWritableDb();
+                asyncSession.insertOrReplaceInTx(DBPhoneNumber.class, phoneNumbers);
+                assertWaitForCompletion1Sec();
                 daoSession.clear();
             }
         } catch (Exception e) {

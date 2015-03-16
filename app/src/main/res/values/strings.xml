@@ -5,5 +5,8 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="create_user_hint">Create User</string>
+    <string name="action_delete_all">Delete all users</string>
+    <string name="details_for_user">Details for user %s</string>
+    <string name="menu_truncate_tables">Truncate tables</string>
 
 </resources>
