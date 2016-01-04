@@ -71,7 +71,10 @@ public class MyDaoGenerator {
         userDetails.addStringProperty("firstName").notNull();
         userDetails.addStringProperty("lastName").notNull();
         userDetails.addDateProperty("birthDate");
-        userDetails.addStringProperty("gender");
+//        userDetails.addStringProperty("gender");
+        userDetails.addStringProperty("gender").
+                customType("ro.octa.greendaosample.commons.model.Gender",
+                        "ro.octa.greendaosample.commons.converter.GenderConverter");
         userDetails.addStringProperty("country");
         userDetails.addDateProperty("registrationDate").notNull();
         return userDetails;

@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import ro.octa.greendaosample.R;
 import ro.octa.greendaosample.dao.DBUser;
@@ -18,9 +18,9 @@ import ro.octa.greendaosample.dao.DBUser;
 public class UserListAdapter extends ArrayAdapter<DBUser> {
 
     private final Activity context;
-    private final List<DBUser> users;
+    private final ArrayList<DBUser> users;
 
-    public UserListAdapter(Activity context, List<DBUser> users) {
+    public UserListAdapter(Activity context, ArrayList<DBUser> users) {
         super(context, R.layout.raw_layout_user, users);
         this.users = users;
         this.context = context;

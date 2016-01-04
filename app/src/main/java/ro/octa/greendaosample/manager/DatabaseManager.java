@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -151,7 +152,7 @@ public class DatabaseManager implements IDatabaseManager, AsyncOperationListener
     }
 
     @Override
-    public synchronized List<DBUser> listUsers() {
+    public synchronized ArrayList<DBUser> listUsers() {
         List<DBUser> users = null;
         try {
             openReadableDb();
@@ -162,7 +163,10 @@ public class DatabaseManager implements IDatabaseManager, AsyncOperationListener
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return users;
+        if (users != null) {
+            return new ArrayList<>(users);
+        }
+        return null;
     }
 
     @Override

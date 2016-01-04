@@ -12,10 +12,11 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 import ro.octa.greendaosample.adapters.UserListAdapter;
+import ro.octa.greendaosample.commons.model.Gender;
 import ro.octa.greendaosample.dao.DBPhoneNumber;
 import ro.octa.greendaosample.dao.DBUser;
 import ro.octa.greendaosample.dao.DBUserDetails;
@@ -30,7 +31,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
     private ListView list;
     private UserListAdapter adapter;
-    private List<DBUser> userList;
+    private ArrayList<DBUser> userList;
     /**
      * Manages the database for this application..
      */
@@ -106,6 +107,83 @@ public class MainActivity extends Activity implements View.OnClickListener {
         adapter.notifyDataSetChanged();
     }
 
+    private DBUser createRandomUser() {
+        DBUser user = new DBUser();
+        user.setEmail(UUID.randomUUID().toString() + "@email.com");
+        user.setPassword("defaultPass");
+        return user;
+    }
+
+    private DBUserDetails createRandomUserDetails() {
+        DBUserDetails userDetails = new DBUserDetails();
+        userDetails.setBirthDate(new Date());
+        userDetails.setRegistrationDate(new Date());
+        userDetails.setCountry("World");
+        userDetails.setFirstName(UUID.randomUUID().toString());
+        userDetails.setLastName(UUID.randomUUID().toString());
+        userDetails.setGender("MALE");
+        userDetails.setNickName(UUID.randomUUID().toString());
+
+        Random r = new Random();
+        int low = 0;
+        int high = 1;
+        int result = r.nextInt(high - low) + low;
+        if (result == 0) {
+            userDetails.setGender(Gender.MALE.getGender());
+        } else {
+            userDetails.setGender(Gender.FEMALE.getGender());
+        }
+
+
+        return userDetails;
+    }
+
+    private void onCreateUserClick() {
+        // create a random user object
+        DBUser user = createRandomUser();
+
+        // insert that user object to our DB
+        user = databaseManager.insertUser(user);
+
+        // Create a random userDetails object
+        DBUserDetails userDetails = createRandomUserDetails();
+        userDetails.setUserId(user.getId());
+        userDetails.setUser(user);
+
+        // insert or update this userDetails object to our DB
+        userDetails = databaseManager.insertOrUpdateUserDetails(userDetails);
+
+        // link userDetails Key to user
+        user.setDetailsId(userDetails.getId());
+        user.setDetails(userDetails);
+        databaseManager.updateUser(user);
+
+        // create a dynamic list of phone numbers for the above object
+        for (int i = 0; i < MathUtils.randInt(1, 7); i++) {
+            DBPhoneNumber phoneNumber = new DBPhoneNumber();
+            phoneNumber.setPhoneNumber(UUID.randomUUID().toString());
+            phoneNumber.setDetailsId(userDetails.getId());
+
+            // insert or update an existing phone number into the database
+            databaseManager.insertOrUpdatePhoneNumber(phoneNumber);
+        }
+
+        try {
+            // add the user object to the list
+            userList.add(user);
+            adapter.notifyDataSetChanged();
+            list.post(new Runnable() {
+                @Override
+                public void run() {
+                    // Select the last row so it will scroll into view...
+                    list.setSelection(adapter.getCount() - 1);
+                }
+            });
+        } catch (UnsupportedOperationException e) {
+
+        }
+    }
+
     /**
      * Called after your activity has been stopped, prior to it being started again.
      * Always followed by onStart()
@@ -145,55 +223,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.createUserBtn: {
-
-                // create a random user object
-                DBUser user = new DBUser();
-                user.setEmail(UUID.randomUUID().toString() + "@email.com");
-                user.setPassword("defaultPass");
-
-                // insert that user object to our DB
-                user = databaseManager.insertUser(user);
-
-                // Create a random userDetails object
-                DBUserDetails userDetails = new DBUserDetails();
-                userDetails.setBirthDate(new Date());
-                userDetails.setRegistrationDate(new Date());
-                userDetails.setCountry("World");
-                userDetails.setFirstName(UUID.randomUUID().toString());
-                userDetails.setLastName(UUID.randomUUID().toString());
-                userDetails.setGender("MALE");
-                userDetails.setNickName(UUID.randomUUID().toString());
-                userDetails.setUserId(user.getId());
-                userDetails.setUser(user);
-
-                // insert or update this userDetails object to our DB
-                userDetails = databaseManager.insertOrUpdateUserDetails(userDetails);
-
-                // link userDetails Key to user
-                user.setDetailsId(userDetails.getId());
-                user.setDetails(userDetails);
-                databaseManager.updateUser(user);
-
-                // create a dynamic list of phone numbers for the above object
-                for (int i = 0; i < MathUtils.randInt(1, 7); i++) {
-                    DBPhoneNumber phoneNumber = new DBPhoneNumber();
-                    phoneNumber.setPhoneNumber(UUID.randomUUID().toString());
-                    phoneNumber.setDetailsId(userDetails.getId());
-
-                    // insert or update an existing phone number into the database
-                    databaseManager.insertOrUpdatePhoneNumber(phoneNumber);
-                }
-
-                // add the user object to the list
-                adapter.add(user);
-                adapter.notifyDataSetChanged();
-                list.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        // Select the last row so it will scroll into view...
-                        list.setSelection(adapter.getCount() - 1);
-                    }
-                });
+                onCreateUserClick();
                 break;
             }
             default:
@@ -210,6 +240,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
             if (adapter == null) {
                 adapter = new UserListAdapter(MainActivity.this, userList);
                 list.setAdapter(adapter);
+                if (userList.isEmpty())
+                    onCreateUserClick();
             } else {
                 list.setAdapter(null);
                 adapter.clear();

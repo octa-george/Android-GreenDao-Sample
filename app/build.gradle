@@ -9,7 +9,7 @@ android {
         minSdkVersion 14
         targetSdkVersion 21
         versionCode 1
-        versionName "1.1"
+        versionName "1.2"
     }
     buildTypes {
         release {
@@ -20,7 +20,8 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile project(':commons')
     // green-dao
-    compile 'de.greenrobot:greendao:1.3.7'
+    compile 'de.greenrobot:greendao:2.1.0'
+
 }
